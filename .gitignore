@@ -1,0 +1,143 @@
+# Dependencies
+node_modules/
+**/node_modules/
+bower_components/
+jspm_packages/
+.bower/
+
+# Environment files — never commit secrets
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.test
+!.env.development
+!.env.local.example
+*.local
+.envrc
+.env.production.local
+.env.local
+.env.test.local
+.env.development.local
+.env.staging.local
+.env.production.local.bak
+.env*.local
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+.nuxt/
+output/
+artifacts/
+*.tsbuildinfo
+next-env.d.ts
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+.netlify/
+
+# OS files
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*~
+.nfs*
+
+# Editor / IDE
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+.idea/
+*.iml
+*.ipr
+*.iws
+.vs/
+.fleet/
+*.suo
+*.user
+
+# Caches
+.cache/
+.tmp/
+.eslintcache
+.stylelintcache
+.parcel-cache/
+.pnpm-store/
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# TypeScript / JS
+*.js.map
+*.mjs.map
+*.cjs.map
+coverage/
+.nyc_output/
+*.tsbuildinfo
+
+# Testing
+.nyc_output/
+coverage/
+.rspec/
+capybara-*.html
+.rspeccache/
+
+# Vite / bundlers
+vite.config.js.timestamp-*
+vite.config.ts.timestamp-*
+
+# Expo / React Native
+.expo/
+.expo-shared/
+*.orig.*
+web-build/
+
+# PWA / Workbox
+workbox-*.js
+sw.js
+
+# Angular
+.cache-loader/
+.vscode/*
+!.vscode/settings.json
+
+# Python (in case of scripts)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+env/
+.pytest_cache/
+.ipynb_checkpoints/
+*.egg-info/
+
+# Java token files / misc
+*.class
+*.war
+.hs_err_pid*
+
+# Compressed
+*.zip
+*.tar.gz
+*.tgz
+
+# Database / SQLite
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+
+# Uploads / temp data
+uploads/
+tmp_data/
+tmp/
