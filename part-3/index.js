@@ -1,4 +1,6 @@
-const http = require("http");
+const express = require("express");
+const app = express();
+app.use(express.json());
 
 let notes = [
     {
@@ -20,15 +22,55 @@ let notes = [
     },
 ];
 
-const app = http.createServer((req, res) => {
-    res.writeHead(200, { "content-type": "application/json" });
-    res.write("[");
-    res.write(JSON.stringify(notes[0]) + ",");
-    res.write(JSON.stringify(notes[2]) + ",");
-    res.write(JSON.stringify(notes[1]));
-    res.write("]");
-    res.end();
+app.get("/", (req, res) => {
+    res.send("<h1>Hello World!</h1>");
 });
 
-app.listen(3001);
-console.log("Running server on 3001");
+app.get("/api/notes", (req, res) => {
+    res.json(notes);
+});
+
+app.get("/api/notes/:id", (req, res) => {
+    const id = req.params.id;
+    const note = notes.find((note) => note.id === id);
+    if (note) {
+        res.json(note);
+    } else {
+        res.statusMessage = "Note with that id is not available";
+        res.status(404).end();
+    }
+});
+
+app.delete("/api/notes/:id", (req, res) => {
+    const id = req.params.id;
+    notes = notes.filter((notes) => notes.id != id);
+    res.status(204).end();
+});
+
+const generateId = () => {
+    const maxId =
+        notes.length > 0 ? Math.max(...notes.map((n) => number(n.id))) : 1;
+    return String(maxId + 1);
+};
+
+app.post("/api/notes", (req, res) => {
+    const body = req.body;
+    if (!body.content) {
+        return res.status(400).json({
+            error: "content missing",
+        });
+    }
+
+    const note = {
+        content: body.content,
+        important: body.important || false,
+        id: generateId(),
+    };
+
+    notes = notes.concat(note);
+    return res.json(note);
+});
+
+app.listen(3001, () => {
+    console.log(`server running on port 3001`);
+});
