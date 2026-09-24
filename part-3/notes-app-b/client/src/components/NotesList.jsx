@@ -1,16 +1,17 @@
 import { useEffect, useState } from "react";
 import { getNotes } from "../server/notes";
+import Note from "./Note";
 
 export default function NotesList() {
     const [notes, setNotes] = useState([]);
 
     useEffect(() => {
         async function loadNotes() {
-            const notes = await getNotes()
-            setNotes(notes)
+            const notes = await getNotes();
+            setNotes(notes);
         }
 
-        loadNotes()
+        loadNotes();
     }, []);
 
     return (
@@ -18,7 +19,7 @@ export default function NotesList() {
             {notes.map((n) => {
                 return (
                     <div key={n.id}>
-                        {n.content} {n.isImportant ? "true" : "false"}
+                        <Note note={n} />
                     </div>
                 );
             })}

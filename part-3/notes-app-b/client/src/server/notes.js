@@ -5,4 +5,13 @@ async function getNotes() {
     return response.data;
 }
 
-export { getNotes };
+async function addNote({ content, important }) {
+    const response = await api.post("", {
+        id: 124141,
+        content: content,
+        important: important,
+    });
+    return response.status;
+}
+
+export { getNotes, addNote };
