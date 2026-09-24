@@ -1,19 +1,6 @@
-import { useEffect, useState } from "react";
-import { getNotes } from "../server/notes";
 import Note from "./Note";
 
-export default function NotesList() {
-    const [notes, setNotes] = useState([]);
-
-    useEffect(() => {
-        async function loadNotes() {
-            const notes = await getNotes();
-            setNotes(notes);
-        }
-
-        loadNotes();
-    }, []);
-
+export default function NotesList({ notes }) {
     return (
         <>
             {notes.map((n) => {

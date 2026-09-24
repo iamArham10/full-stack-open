@@ -1,13 +1,16 @@
 import { useState } from "react";
 import { addNote } from "../server/notes";
 
-export default function AddNote() {
-    const [text, setText] = useState("");
+export default function AddNote({ onNoteAdded }) {
+    const [content, setContent] = useState("");
     const [important, setImportant] = useState(false);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        addNote({ text, important });
+        const newNote = await addNote({ content, important });
+        onNoteAdded(newNote);
+        setContent("");
+        setImportant(false);
     };
 
     return (
@@ -15,9 +18,9 @@ export default function AddNote() {
             <div>
                 <input
                     type="text"
-                    value={text}
+                    value={content}
                     onChange={(e) => {
-                        setText(e.target.value.trim());
+                        setContent(e.target.value);
                     }}
                 />
                 <label>

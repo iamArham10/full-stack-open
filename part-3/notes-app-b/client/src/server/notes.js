@@ -7,11 +7,10 @@ async function getNotes() {
 
 async function addNote({ content, important }) {
     const response = await api.post("", {
-        id: 124141,
         content: content,
         important: important,
     });
-    return response.status;
+    return response.data;
 }
 
 export { getNotes, addNote };
