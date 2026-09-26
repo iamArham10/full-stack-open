@@ -1,4 +1,6 @@
 const express = require("express");
+const morgan = require("morgan");
+
 let notes = [
     {
         id: "0",
@@ -42,6 +44,19 @@ let notes = [
 const app = express();
 
 app.use(express.json());
+
+morgan.token("time", () => `${Date.now()}ms`);
+
+app.use(
+    morgan((tokens, req, res) => {
+        return [
+            tokens.method(req, res),
+            tokens.url(req, res),
+            tokens.status(req, res),
+            tokens["response-time"](req, res) + "ms",
+        ].join(" ");
+    })
+);
 
 app.get("/notes", (req, res) => {
     return res.send(notes);
