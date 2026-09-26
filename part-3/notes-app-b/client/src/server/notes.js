@@ -13,9 +13,18 @@ async function addNote({ content, important }) {
     return response.data;
 }
 
-async function deleteNote({ id }) {
+async function deleteNote(idOrObj) {
+    const id =
+        typeof idOrObj === "object" && idOrObj !== null
+            ? idOrObj.id
+            : idOrObj;
     const response = await api.delete(`/${id}`);
     return response.data;
 }
 
-export { getNotes, addNote, deleteNote };
+async function updateNote(id, updatedNote) {
+    const response = await api.put(`/${id}`, updatedNote);
+    return response.data;
+}
+
+export { getNotes, addNote, deleteNote, updateNote };

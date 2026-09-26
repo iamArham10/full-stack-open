@@ -1,7 +1,9 @@
 import axios from "axios";
 
+const baseUrl = "/notes";
+
 const api = axios.create({
-    baseURL: "http://localhost:3000/notes",
+    baseURL: baseUrl,
 });
 
 export default api;

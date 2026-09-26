@@ -7,18 +7,28 @@ export default function AddNote({ onNoteAdded }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        const newNote = await addNote({ content, important });
-        onNoteAdded(newNote);
-        setContent("");
-        setImportant(false);
+        if (!content.trim()) return;
+
+        try {
+            const newNote = await addNote({
+                content: content.trim(),
+                important,
+            });
+            onNoteAdded(newNote);
+            setContent("");
+            setImportant(false);
+        } catch (error) {
+            console.error("Failed to add note:", error);
+        }
     };
 
     return (
-        <form action="handleSubmit" onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit}>
             <div>
                 <input
                     type="text"
                     value={content}
+                    placeholder="Enter note..."
                     onChange={(e) => {
                         setContent(e.target.value);
                     }}
@@ -28,13 +38,11 @@ export default function AddNote({ onNoteAdded }) {
                     important
                     <input
                         type="checkbox"
-                        value={important}
+                        checked={important}
                         onChange={(e) => setImportant(e.target.checked)}
                     />
                 </label>{" "}
-                <label>
-                    <button type="submit">submit</button>
-                </label>
+                <button type="submit">submit</button>
             </div>
         </form>
     );

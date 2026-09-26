@@ -46,6 +46,7 @@ const app = express();
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static("dist"));
 
 morgan.token("body", (req) => {
     return req.method === "POST" ? JSON.stringify(req.body) : "";
@@ -82,13 +83,17 @@ app.get("/notes/:id", (req, res) => {
 app.post("/notes", (req, res) => {
     const body = req.body;
 
-    if (!body || !body.content || typeof body.content !== "string" || !body.content.trim()) {
+    if (
+        !body ||
+        !body.content ||
+        typeof body.content !== "string" ||
+        !body.content.trim()
+    ) {
         return res.status(400).json({ error: "content missing" });
     }
 
-    const maxId = notes.length > 0
-        ? Math.max(...notes.map((n) => Number(n.id) || 0))
-        : 0;
+    const maxId =
+        notes.length > 0 ? Math.max(...notes.map((n) => Number(n.id) || 0)) : 0;
 
     const note = {
         id: String(maxId + 1),
@@ -112,7 +117,10 @@ app.put("/notes/:id", (req, res) => {
     const updatedNote = {
         ...note,
         content: body.content !== undefined ? body.content : note.content,
-        important: body.important !== undefined ? Boolean(body.important) : note.important,
+        important:
+            body.important !== undefined
+                ? Boolean(body.important)
+                : note.important,
     };
 
     notes = notes.map((n) => (String(n.id) === String(id) ? updatedNote : n));
@@ -128,7 +136,9 @@ app.delete("/notes/:id", (req, res) => {
         notes = notes.filter((n) => String(n.id) !== String(id));
         return res.status(204).end();
     } else {
-        return res.status(404).json({ error: `note with id: ${id} does not exist` });
+        return res
+            .status(404)
+            .json({ error: `note with id: ${id} does not exist` });
     }
 });
 

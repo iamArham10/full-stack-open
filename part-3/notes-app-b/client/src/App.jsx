@@ -10,8 +10,12 @@ function App() {
 
     useEffect(() => {
         const fetchNotes = async () => {
-            const initialNotes = await getNotes();
-            setNotes(initialNotes);
+            try {
+                const initialNotes = await getNotes();
+                setNotes(initialNotes);
+            } catch (error) {
+                console.error("Failed to fetch initial notes:", error);
+            }
         };
 
         fetchNotes();
@@ -25,7 +29,9 @@ function App() {
     async function handleDelete(id) {
         try {
             await deleteNote({ id });
-            setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+            setNotes((prevNotes) =>
+                prevNotes.filter((note) => String(note.id) !== String(id)),
+            );
             setSearchQuery("");
         } catch (error) {
             console.error("Failed to delete note:", error);
@@ -34,7 +40,7 @@ function App() {
 
     const notesToShow = searchQuery.trim()
         ? notes.filter((note) =>
-              note.content.toLowerCase().includes(searchQuery.toLowerCase()),
+              note.content?.toLowerCase().includes(searchQuery.trim().toLowerCase()),
           )
         : notes;
 
