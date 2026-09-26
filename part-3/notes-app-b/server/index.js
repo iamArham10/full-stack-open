@@ -1,5 +1,6 @@
 const express = require("express");
 const morgan = require("morgan");
+const cors = require("cors");
 
 let notes = [
     {
@@ -43,9 +44,12 @@ let notes = [
 
 const app = express();
 
+app.use(cors());
 app.use(express.json());
 
-morgan.token("time", () => `${Date.now()}ms`);
+morgan.token("body", (req) => {
+    return req.method === "POST" ? JSON.stringify(req.body) : "";
+});
 
 app.use(
     morgan((tokens, req, res) => {
@@ -54,38 +58,86 @@ app.use(
             tokens.url(req, res),
             tokens.status(req, res),
             tokens["response-time"](req, res) + "ms",
-        ].join(" ");
-    })
+            tokens.body(req, res),
+        ]
+            .filter(Boolean)
+            .join(" ");
+    }),
 );
 
 app.get("/notes", (req, res) => {
-    return res.send(notes);
+    return res.json(notes);
 });
 
 app.get("/notes/:id", (req, res) => {
     const id = req.params.id;
-    const note = notes.find((n) => n.id === id);
+    const note = notes.find((n) => String(n.id) === String(id));
 
     if (!note) {
-        return res.status(404).send(`note with id: ${id} not found`);
-    } else {
-        return res.json(note);
+        return res.status(404).json({ error: `note with id: ${id} not found` });
     }
+    return res.json(note);
+});
+
+app.post("/notes", (req, res) => {
+    const body = req.body;
+
+    if (!body || !body.content || typeof body.content !== "string" || !body.content.trim()) {
+        return res.status(400).json({ error: "content missing" });
+    }
+
+    const maxId = notes.length > 0
+        ? Math.max(...notes.map((n) => Number(n.id) || 0))
+        : 0;
+
+    const note = {
+        id: String(maxId + 1),
+        content: body.content.trim(),
+        important: Boolean(body.important),
+    };
+
+    notes = notes.concat(note);
+    return res.status(201).json(note);
+});
+
+app.put("/notes/:id", (req, res) => {
+    const id = req.params.id;
+    const body = req.body;
+
+    const note = notes.find((n) => String(n.id) === String(id));
+    if (!note) {
+        return res.status(404).json({ error: `note with id: ${id} not found` });
+    }
+
+    const updatedNote = {
+        ...note,
+        content: body.content !== undefined ? body.content : note.content,
+        important: body.important !== undefined ? Boolean(body.important) : note.important,
+    };
+
+    notes = notes.map((n) => (String(n.id) === String(id) ? updatedNote : n));
+    return res.json(updatedNote);
 });
 
 app.delete("/notes/:id", (req, res) => {
     const id = req.params.id;
 
-    const note = notes.find((n) => n.id === id);
+    const note = notes.find((n) => String(n.id) === String(id));
 
     if (note) {
-        notes = notes.filter((n) => n.id !== id);
+        notes = notes.filter((n) => String(n.id) !== String(id));
         return res.status(204).end();
     } else {
-        return res.status(404).send(`note with id: ${id} does not exists`);
+        return res.status(404).json({ error: `note with id: ${id} does not exist` });
     }
 });
 
-app.listen(3000, () => {
-    console.log(`Server running on port ${3000}`);
+const unknownEndpoint = (req, res) => {
+    return res.status(404).json({ error: "unknown endpoint" });
+};
+app.use(unknownEndpoint);
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
 });
