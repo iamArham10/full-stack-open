@@ -13,4 +13,9 @@ async function addNote({ content, important }) {
     return response.data;
 }
 
-export { getNotes, addNote };
+async function deleteNote({ id }) {
+    const response = await api.delete(`/${id}`);
+    return response.data;
+}
+
+export { getNotes, addNote, deleteNote };

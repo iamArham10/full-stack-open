@@ -1,15 +1,17 @@
 import NotesList from "./components/NotesList";
 import AddNote from "./components/AddNote";
+import FilterNotes from "./components/filterNotes";
 import { useEffect, useState } from "react";
-import { getNotes } from "./server/notes";
+import { getNotes, deleteNote } from "./server/notes";
 
 function App() {
     const [notes, setNotes] = useState([]);
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         const fetchNotes = async () => {
-            const notes = await getNotes();
-            setNotes(notes);
+            const initialNotes = await getNotes();
+            setNotes(initialNotes);
         };
 
         fetchNotes();
@@ -17,14 +19,35 @@ function App() {
 
     function onNoteAdded(newNote) {
         setNotes((prevNotes) => prevNotes.concat(newNote));
+        setSearchQuery("");
     }
+
+    async function handleDelete(id) {
+        try {
+            await deleteNote({ id });
+            setNotes((prevNotes) => prevNotes.filter((note) => note.id !== id));
+            setSearchQuery("");
+        } catch (error) {
+            console.error("Failed to delete note:", error);
+        }
+    }
+
+    const notesToShow = searchQuery.trim()
+        ? notes.filter((note) =>
+              note.content.toLowerCase().includes(searchQuery.toLowerCase()),
+          )
+        : notes;
 
     return (
         <>
-            <h1>Add a Note</h1>
+            <h3>Add a Note</h3>
             <AddNote onNoteAdded={onNoteAdded} />
             <h2>Your Notes</h2>
-            <NotesList notes={notes} />
+            <FilterNotes
+                searchQuery={searchQuery}
+                onSearchChange={setSearchQuery}
+            />
+            <NotesList notes={notesToShow} handleDelete={handleDelete} />
         </>
     );
 }
