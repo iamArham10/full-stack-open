@@ -1,11 +1,21 @@
 const express = require("express");
 const cors = require("cors");
+const morgan = require("morgan");
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 app.use(express.static("dist"));
+
+// Morgan logging setup (Exercises 3.7 - 3.8)
+morgan.token("body", (req) => {
+    return req.method === "POST" ? JSON.stringify(req.body) : "";
+});
+
+app.use(
+    morgan(":method :url :status :res[content-length] - :response-time ms :body")
+);
 
 let phoneBook = [
     {
@@ -48,6 +58,14 @@ let phoneBook = [
 // 1. Get all
 app.get(["/phone", "/api/persons"], (_req, res) => {
     res.json(phoneBook);
+});
+
+// Info route (Exercise 3.2)
+app.get("/info", (_req, res) => {
+    res.send(`
+        <p>Phonebook has info for ${phoneBook.length} people</p>
+        <p>${new Date()}</p>
+    `);
 });
 
 // 2. Get specific
@@ -133,7 +151,7 @@ app.put(["/phone/:id", "/api/persons/:id"], (req, res) => {
     res.json(updatedPerson);
 });
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
     console.log(`Running server on port: ${PORT}`);
 });
