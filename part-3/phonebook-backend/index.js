@@ -1,6 +1,8 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const morgan = require("morgan");
+const Phone = require("./models/phones");
 
 const app = express();
 
@@ -14,142 +16,122 @@ morgan.token("body", (req) => {
 });
 
 app.use(
-    morgan(":method :url :status :res[content-length] - :response-time ms :body")
+    morgan(
+        ":method :url :status :res[content-length] - :response-time ms :body",
+    ),
 );
 
-let phoneBook = [
-    {
-        id: 0,
-        name: "Arham",
-        phone: "+92-324-5521508",
-    },
-    {
-        id: 1,
-        name: "Ada Lovelace",
-        phone: "+39-44-5323523",
-    },
-    {
-        id: 2,
-        name: "Dan Abramov",
-        phone: "+12-43-234345",
-    },
-    {
-        id: 3,
-        name: "Mary Poppendieck",
-        phone: "+39-23-6423122",
-    },
-    {
-        id: 4,
-        name: "Grace Hopper",
-        phone: "+1-555-234-5678",
-    },
-    {
-        id: 5,
-        name: "Alan Turing",
-        phone: "+44-20-7946-0958",
-    },
-    {
-        id: 6,
-        name: "Linus Torvalds",
-        phone: "+1-555-987-6543",
-    },
-];
-
 // 1. Get all
-app.get(["/phone", "/api/persons"], (_req, res) => {
-    res.json(phoneBook);
+app.get(["/phone", "/api/persons"], (_req, res, next) => {
+    Phone.find({})
+        .then((phones) => {
+            res.json(phones);
+        })
+        .catch((error) => next(error));
 });
 
 // Info route (Exercise 3.2)
-app.get("/info", (_req, res) => {
-    res.send(`
-        <p>Phonebook has info for ${phoneBook.length} people</p>
-        <p>${new Date()}</p>
-    `);
+app.get("/info", (_req, res, next) => {
+    Phone.find({})
+        .then((phones) => {
+            res.send(`
+                <p>Phonebook has info for ${phones.length} people</p>
+                <p>${new Date()}</p>
+            `);
+        })
+        .catch((error) => next(error));
 });
 
 // 2. Get specific
-app.get(["/phone/:id", "/api/persons/:id"], (req, res) => {
-    const id = req.params.id;
-    const phone = phoneBook.find((p) => String(p.id) === String(id));
-
-    if (phone) {
-        return res.json(phone);
-    }
-
-    res.status(404).json({ error: "person not found" });
+app.get(["/phone/:id", "/api/persons/:id"], (req, res, next) => {
+    Phone.findById(req.params.id)
+        .then((phone) => {
+            if (phone) {
+                res.json(phone);
+            } else {
+                res.status(404).json({ error: "person not found" });
+            }
+        })
+        .catch((error) => next(error));
 });
 
 // 3. Delete
-app.delete(["/phone/:id", "/api/persons/:id"], (req, res) => {
-    const id = req.params.id;
-    const phone = phoneBook.find((p) => String(p.id) === String(id));
-
-    if (phone) {
-        phoneBook = phoneBook.filter((p) => String(p.id) !== String(id));
-        return res.status(204).end();
-    }
-
-    res.status(404).json({ error: "person not found" });
+app.delete(["/phone/:id", "/api/persons/:id"], (req, res, next) => {
+    Phone.findByIdAndDelete(req.params.id)
+        .then((_result) => {
+            res.status(204).end();
+        })
+        .catch((error) => next(error));
 });
 
 // 4. Post
-app.post(["/phone", "/api/persons"], (req, res) => {
+app.post(["/phone", "/api/persons"], (req, res, next) => {
     const body = req.body;
 
     if (!body || !body.name || (!body.phone && !body.number)) {
         return res.status(400).json({ error: "name or phone missing" });
     }
 
-    const phoneValue = body.phone || body.number;
-    let existingPerson = phoneBook.find(
-        (p) => p.name.toLowerCase() === body.name.toLowerCase()
-    );
-
-    if (existingPerson) {
-        const updatedPerson = { ...existingPerson, phone: phoneValue };
-        phoneBook = phoneBook.map((p) =>
-            p.id === existingPerson.id ? updatedPerson : p
-        );
-        return res.json(updatedPerson);
-    }
-
-    const maxId =
-        phoneBook.length > 0
-            ? Math.max(...phoneBook.map((p) => Number(p.id) || 0))
-            : 0;
-
-    const newPerson = {
-        id: maxId + 1,
+    const phone = new Phone({
         name: body.name,
-        phone: phoneValue,
-    };
+        phone: body.phone || body.number,
+    });
 
-    phoneBook = phoneBook.concat(newPerson);
-    res.status(201).json(newPerson);
+    phone
+        .save()
+        .then((savedPhone) => {
+            res.status(201).json(savedPhone);
+        })
+        .catch((error) => next(error));
 });
 
 // 5. Put (update)
-app.put(["/phone/:id", "/api/persons/:id"], (req, res) => {
-    const id = req.params.id;
+app.put(["/phone/:id", "/api/persons/:id"], (req, res, next) => {
     const body = req.body;
-    const person = phoneBook.find((p) => String(p.id) === String(id));
 
-    if (!person) {
-        return res.status(404).json({ error: "person not found" });
+    if (!body || !body.name || (!body.phone && !body.number)) {
+        return res.status(400).json({ error: "name or phone missing" });
     }
 
-    const updatedPerson = {
-        ...person,
-        name: body.name || person.name,
-        phone: body.phone || body.number || person.phone,
+    const person = {
+        name: body.name,
+        phone: body.phone || body.number,
     };
 
-    phoneBook = phoneBook.map((p) =>
-        String(p.id) === String(id) ? updatedPerson : p
-    );
-    res.json(updatedPerson);
+    Phone.findByIdAndUpdate(req.params.id, person, {
+        new: true,
+        runValidators: true,
+        context: "query",
+    })
+        .then((updatedPerson) => {
+            if (updatedPerson) {
+                res.json(updatedPerson);
+            } else {
+                res.status(404).json({ error: "person not found" });
+            }
+        })
+        .catch((error) => next(error));
 });
+
+const unknownEndpoint = (_req, res) => {
+    res.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
+
+const errorHandler = (error, _req, res, next) => {
+    console.error(error.message);
+
+    if (error.name === "CastError") {
+        return res.status(400).send({ error: "malformatted id" });
+    } else if (error.name === "ValidationError") {
+        return res.status(400).json({ error: error.message });
+    }
+
+    next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
