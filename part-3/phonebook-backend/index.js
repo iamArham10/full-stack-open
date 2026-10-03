@@ -10,7 +10,6 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static("dist"));
 
-// Morgan logging setup (Exercises 3.7 - 3.8)
 morgan.token("body", (req) => {
     return req.method === "POST" ? JSON.stringify(req.body) : "";
 });
@@ -21,7 +20,6 @@ app.use(
     ),
 );
 
-// 1. Get all
 app.get(["/phone", "/api/persons"], (_req, res, next) => {
     Phone.find({})
         .then((phones) => {
@@ -30,7 +28,6 @@ app.get(["/phone", "/api/persons"], (_req, res, next) => {
         .catch((error) => next(error));
 });
 
-// Info route (Exercise 3.2)
 app.get("/info", (_req, res, next) => {
     Phone.find({})
         .then((phones) => {
@@ -42,7 +39,6 @@ app.get("/info", (_req, res, next) => {
         .catch((error) => next(error));
 });
 
-// 2. Get specific
 app.get(["/phone/:id", "/api/persons/:id"], (req, res, next) => {
     Phone.findById(req.params.id)
         .then((phone) => {
@@ -55,7 +51,6 @@ app.get(["/phone/:id", "/api/persons/:id"], (req, res, next) => {
         .catch((error) => next(error));
 });
 
-// 3. Delete
 app.delete(["/phone/:id", "/api/persons/:id"], (req, res, next) => {
     Phone.findByIdAndDelete(req.params.id)
         .then((_result) => {
@@ -64,7 +59,6 @@ app.delete(["/phone/:id", "/api/persons/:id"], (req, res, next) => {
         .catch((error) => next(error));
 });
 
-// 4. Post
 app.post(["/phone", "/api/persons"], (req, res, next) => {
     const body = req.body;
 
@@ -85,7 +79,6 @@ app.post(["/phone", "/api/persons"], (req, res, next) => {
         .catch((error) => next(error));
 });
 
-// 5. Put (update)
 app.put(["/phone/:id", "/api/persons/:id"], (req, res, next) => {
     const body = req.body;
 
@@ -133,7 +126,7 @@ const errorHandler = (error, _req, res, next) => {
 
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Running server on port: ${PORT}`);
 });
