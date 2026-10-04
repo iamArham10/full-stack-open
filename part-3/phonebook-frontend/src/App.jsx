@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import ListPhoneBook from "./components/ListPhoneBook.jsx";
+import Notification from "./components/Notification.jsx";
 import {
     createPhone,
     deletePhone,
@@ -14,6 +15,14 @@ function App() {
     const [newName, setNewName] = useState("");
     const [newPhone, setNewPhone] = useState("");
     const [filter, setFilter] = useState("");
+    const [notification, setNotification] = useState(null);
+
+    const showNotification = (message, type = "success") => {
+        setNotification({ message, type });
+        setTimeout(() => {
+            setNotification(null);
+        }, 5000);
+    };
 
     useEffect(() => {
         getPhoneBook().then((initialPhones) => {
@@ -25,7 +34,7 @@ function App() {
         event.preventDefault();
 
         if (!newName || !newPhone) {
-            alert("Please enter both name and number");
+            showNotification("Please enter both name and number", "error");
             return;
         }
 
@@ -53,9 +62,17 @@ function App() {
                         );
                         setNewName("");
                         setNewPhone("");
+                        showNotification(
+                            `Updated ${returnedPerson.name}'s number`,
+                            "success"
+                        );
                     })
-                    .catch(() => {
-                        alert(`Failed to update ${existingPerson.name}`);
+                    .catch((error) => {
+                        console.log(error.response?.data?.error);
+                        const errorMessage =
+                            error.response?.data?.error ||
+                            `Failed to update ${existingPerson.name}`;
+                        showNotification(errorMessage, "error");
                     });
             }
             return;
@@ -71,9 +88,13 @@ function App() {
                 setPhones(phones.concat(returnedPerson));
                 setNewName("");
                 setNewPhone("");
+                showNotification(`Added ${returnedPerson.name}`, "success");
             })
-            .catch(() => {
-                alert("Failed to add contact");
+            .catch((error) => {
+                console.log(error.response?.data?.error);
+                const errorMessage =
+                    error.response?.data?.error || "Failed to add contact";
+                showNotification(errorMessage, "error");
             });
     };
 
@@ -84,9 +105,15 @@ function App() {
             deletePhone(id)
                 .then(() => {
                     setPhones(phones.filter((p) => p.id !== id));
+                    showNotification(`Deleted ${name}`, "success");
                 })
-                .catch(() => {
-                    alert(`Failed to delete ${name}`);
+                .catch((error) => {
+                    console.log(error.response?.data?.error);
+                    const errorMessage =
+                        error.response?.data?.error ||
+                        `Information of ${name} has already been removed from server`;
+                    showNotification(errorMessage, "error");
+                    setPhones(phones.filter((p) => p.id !== id));
                 });
         }
     };
@@ -105,6 +132,11 @@ function App() {
     return (
         <div style={{ margin: "20px" }}>
             <h2>Phonebook</h2>
+
+            <Notification
+                message={notification?.message}
+                type={notification?.type}
+            />
 
             <div>
                 filter shown with:{" "}
