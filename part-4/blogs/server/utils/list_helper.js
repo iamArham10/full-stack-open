@@ -15,4 +15,27 @@ function favoriteBlog(blogs) {
     return result.likes !== -1 ? result : null;
 }
 
-module.exports = { dummy, totalLikes, favoriteBlog };
+function mostBlogs(blogs) {
+    const countMap = new Map();
+
+    for (const blog of blogs) {
+        countMap.set(blog.author, (countMap.get(blog.author) || 0) + 1);
+    }
+
+    let maxAuthor = null;
+    let maxCount = 0;
+
+    for (const [author, count] of countMap) {
+        if (count > maxCount) {
+            maxAuthor = author;
+            maxCount = count;
+        }
+    }
+
+    return {
+        author: maxAuthor,
+        blogs: maxCount,
+    };
+}
+
+module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs };
