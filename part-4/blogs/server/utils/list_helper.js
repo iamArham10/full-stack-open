@@ -38,4 +38,29 @@ function mostBlogs(blogs) {
     };
 }
 
-module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs };
+function mostLikes(blogs) {
+    const countMap = new Map();
+
+    for (const blog of blogs) {
+        countMap.set(
+            blog.author,
+            (countMap.get(blog.authir) || 0) + blog.likes,
+        );
+    }
+
+    let maxAuthor = null;
+    let maxLikes = 0;
+
+    for (const [author, likes] of countMap) {
+        if (likes > maxLikes) {
+            maxAuthor = author;
+            maxLikes = likes;
+        }
+    }
+
+    return {
+        author: maxAuthor,
+        like: maxLikes,
+    };
+}
+module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes };
