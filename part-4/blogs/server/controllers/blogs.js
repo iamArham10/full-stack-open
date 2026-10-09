@@ -8,11 +8,18 @@ blogRouter.get("/", (request, response) => {
 });
 
 blogRouter.post("/", (request, response, next) => {
-    const blog = new Blog(request.body);
+    const { title, author, url, like, likes } = request.body;
+
+    const blog = new Blog({
+        title,
+        author,
+        url,
+        like: like ?? likes ?? 0,
+    });
 
     blog.save()
         .then((result) => {
-            response.json(result);
+            response.status(201).json(result);
         })
         .catch((error) => next(error));
 });
