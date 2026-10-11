@@ -10,14 +10,16 @@ const app = express();
 
 logger.info("connecting to", config.MONGODB_URI);
 
-mongoose
-    .connect(config.MONGODB_URI, { family: 4 })
-    .then(() => {
-        logger.info(`connected to MongoDB`);
-    })
-    .catch((error) => {
+const connectToDB = async () => {
+    try {
+        await mongoose.connect(config.MONGODB_URI, { family: 4 });
+        logger.info("connected to MongoDB");
+    } catch (error) {
         logger.error(`error connecting to mongoDB:${error}`);
-    });
+    }
+};
+
+connectToDB();
 
 app.use(express.static("dist"));
 app.use(express.json());

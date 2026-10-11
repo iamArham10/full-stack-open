@@ -4,6 +4,7 @@ const { mongoose } = require("mongoose");
 const supertest = require("supertest");
 const app = require("../app");
 const Blog = require("../models/blog");
+const User = require("../models/user");
 const helper = require("./test_helper");
 
 const api = supertest(app);
@@ -108,6 +109,36 @@ describe("when there are initially some blogs are saved", () => {
             await api.post("/api/blogs").send(blogWithoutUrl).expect(400);
             await api.post("/api/blogs").send(blogWithoutAuthor).expect(400);
         });
+
+        test("a blog is assigned to a user in the database", async () => {
+            await User.deleteMany({});
+            const user = new User({
+                username: "creatoruser",
+                passwordHash: "secretHash",
+                name: "Creator",
+            });
+            const savedUser = await user.save();
+
+            const newBlog = {
+                title: "Blog with creator",
+                author: "Test Author",
+                url: "https://example.com/test",
+                like: 4,
+            };
+
+            const response = await api
+                .post("/api/blogs")
+                .send(newBlog)
+                .expect(201);
+
+            const blogs = await api.get("/api/blogs");
+            const created = blogs.body.find((b) => b.title === "Blog with creator");
+            assert(created.user);
+            assert.strictEqual(created.user.username, "creatoruser");
+
+            const userInDb = await User.findById(savedUser.id);
+            assert(userInDb.blogs.map((b) => b.toString()).includes(response.body.id));
+        });
     });
 
     describe("deletion of a blog", () => {
@@ -145,6 +176,7 @@ describe("when there are initially some blogs are saved", () => {
 
     after(async () => {
         await Blog.deleteMany({});
+        await User.deleteMany({});
         await mongoose.connection.close();
     });
 });
