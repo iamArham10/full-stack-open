@@ -4,9 +4,10 @@ const userSchema = mongoose.Schema({
     username: {
         type: String,
         required: true,
+        unique: true,
     },
     name: String,
-    password: {
+    passwordHash: {
         type: String,
         required: true,
     },
@@ -22,9 +23,9 @@ userSchema.set("toJSON", {
     transform: (_object, outputObject) => {
         outputObject.id = outputObject._id;
         delete outputObject._id;
-        delete outputObject.password;
+        delete outputObject.passwordHash;
         delete outputObject.__v;
     },
 });
 
-module.exports = mongoose.Model("User", userSchema);
+module.exports = mongoose.model("User", userSchema);

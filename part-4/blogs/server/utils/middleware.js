@@ -19,6 +19,10 @@ const errorHandler = (error, request, response, next) => {
         return response.status(404).json({ error: "malformed id" });
     } else if (error.name === "ValidationError") {
         return response.status(400).json({ error: error.message });
+    } else if (error.name === "MongoServerError") {
+        return response
+            .status(409)
+            .json({ error: "User with this username already exists" });
     }
     next(error);
 };
