@@ -142,9 +142,9 @@ describe("when there are initially some blogs are saved", () => {
             assert.strictEqual(updatedBlog.body.like, currentLikes + 1);
         });
     });
-});
 
-after(async () => {
-    await Blog.deleteMany({});
-    await mongoose.connection.close();
+    after(async () => {
+        await Blog.deleteMany({});
+        await mongoose.connection.close();
+    });
 });
