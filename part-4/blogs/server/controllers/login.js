@@ -1,5 +1,5 @@
 const loginRouter = require("express").Router();
-const User = require("../controllers/users");
+const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const config = require("../utils/config");
@@ -7,7 +7,7 @@ const config = require("../utils/config");
 loginRouter.post("/", async (req, res) => {
     const { username, password } = req.body;
 
-    const user = await User.find({ username });
+    const user = await User.findOne({ username });
     const passwordCorrect =
         user === null
             ? false

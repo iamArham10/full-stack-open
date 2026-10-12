@@ -1,6 +1,6 @@
 const blogRouter = require("express").Router();
 const Blog = require("../models/blog");
-const User = require("../models/user");
+const { userExtractor } = require("../utils/middleware");
 
 blogRouter.get("/", async (request, response) => {
     const blogs = await Blog.find({}).populate("user", {
@@ -10,30 +10,24 @@ blogRouter.get("/", async (request, response) => {
     response.json(blogs);
 });
 
-blogRouter.post("/", async (request, response, next) => {
+blogRouter.post("/", userExtractor, async (request, response, next) => {
     try {
         const { title, author, url, like, likes } = request.body || {};
 
-        const user = request.user ? request.user : null;
-
-        if (!user) {
-            return response.status(400).end({ error: "Not Authenticated" });
-        }
+        const user = request.user;
 
         const blog = new Blog({
             title,
             author,
             url,
             like: like ?? likes ?? 0,
-            user: user ? user._id : undefined,
+            user: user._id,
         });
 
         const savedBlog = await blog.save();
 
-        if (user) {
-            user.blogs = user.blogs.concat(savedBlog._id);
-            await user.save();
-        }
+        user.blogs = user.blogs.concat(savedBlog._id);
+        await user.save();
 
         response.status(201).json(savedBlog);
     } catch (error) {
@@ -54,9 +48,26 @@ blogRouter.get("/:id", async (request, response, next) => {
     }
 });
 
-blogRouter.delete("/:id", async (request, response, next) => {
+blogRouter.delete("/:id", userExtractor, async (request, response, next) => {
     try {
-        await Blog.findByIdAndDelete(request.params.id);
+        const blogToDelete = await Blog.findById(request.params.id);
+        if (!blogToDelete) {
+            return response.status(404).json({ error: "Invalid blog id" });
+        }
+
+        const user = request.user;
+
+        if (!blogToDelete.user || blogToDelete.user.toString() !== user._id.toString()) {
+            return response
+                .status(403)
+                .json({ error: "only the creator can delete a blog" });
+        }
+
+        await Blog.findByIdAndDelete(blogToDelete._id);
+        user.blogs = user.blogs.filter(
+            (id) => id.toString() !== blogToDelete._id.toString(),
+        );
+        await user.save();
         response.status(204).end();
     } catch (error) {
         next(error);

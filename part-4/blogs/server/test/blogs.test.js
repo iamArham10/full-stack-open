@@ -5,14 +5,26 @@ const supertest = require("supertest");
 const app = require("../app");
 const Blog = require("../models/blog");
 const User = require("../models/user");
+const bcrypt = require("bcrypt");
 const helper = require("./test_helper");
 
 const api = supertest(app);
 
 describe("when there are initially some blogs are saved", () => {
+    let user;
+    let token;
+
     beforeEach(async () => {
         await Blog.deleteMany({});
         await Blog.insertMany(helper.initialBlogs);
+        await User.deleteMany({});
+        const passwordHash = await bcrypt.hash("sekret", 10);
+        user = await new User({ username: "creatoruser", name: "Creator", passwordHash }).save();
+        const login = await api
+            .post("/api/login")
+            .send({ username: "creatoruser", password: "sekret" })
+            .expect(200);
+        token = login.body.token;
     });
 
     test("blogs are returned as json", async () => {
@@ -66,6 +78,7 @@ describe("when there are initially some blogs are saved", () => {
             const initialLength = helper.initialBlogs.length;
             await api
                 .post("/api/blogs")
+                .set("Authorization", `Bearer ${token}`)
                 .send(newBlog)
                 .expect(201)
                 .expect("Content-Type", /application\/json/);
@@ -88,6 +101,7 @@ describe("when there are initially some blogs are saved", () => {
 
             const response = await api
                 .post("/api/blogs")
+                .set("Authorization", `Bearer ${token}`)
                 .send(newBlog)
                 .expect(201)
                 .expect("Content-Type", /application\/json/);
@@ -106,53 +120,93 @@ describe("when there are initially some blogs are saved", () => {
             const { url, ...blogWithoutUrl } = newBlog;
             const { title, ...blogWithoutAuthor } = newBlog;
 
-            await api.post("/api/blogs").send(blogWithoutUrl).expect(400);
-            await api.post("/api/blogs").send(blogWithoutAuthor).expect(400);
+            await api
+                .post("/api/blogs")
+                .set("Authorization", `Bearer ${token}`)
+                .send(blogWithoutUrl)
+                .expect(400);
+            await api
+                .post("/api/blogs")
+                .set("Authorization", `Bearer ${token}`)
+                .send(blogWithoutAuthor)
+                .expect(400);
         });
 
-        test("a blog is assigned to a user in the database", async () => {
-            await User.deleteMany({});
-            const user = new User({
-                username: "creatoruser",
-                passwordHash: "secretHash",
-                name: "Creator",
-            });
-            const savedUser = await user.save();
-
+        test("fails with status code 401 if token is not provided", async () => {
             const newBlog = {
-                title: "Blog with creator",
-                author: "Test Author",
-                url: "https://example.com/test",
-                like: 4,
+                title: "No token blog",
+                author: "Nobody",
+                url: "https://example.com/notoken",
             };
 
+            await api.post("/api/blogs").send(newBlog).expect(401);
+
+            const blogsAtEnd = await helper.blogsInDB();
+            assert.strictEqual(blogsAtEnd.length, helper.initialBlogs.length);
+        });
+
+        test("a blog is assigned to the user identified by the token", async () => {
             const response = await api
                 .post("/api/blogs")
-                .send(newBlog)
+                .set("Authorization", `Bearer ${token}`)
+                .send({
+                    title: "Blog with creator",
+                    author: "Test Author",
+                    url: "https://example.com/test",
+                    like: 4,
+                })
                 .expect(201);
 
             const blogs = await api.get("/api/blogs");
             const created = blogs.body.find((b) => b.title === "Blog with creator");
-            assert(created.user);
             assert.strictEqual(created.user.username, "creatoruser");
 
-            const userInDb = await User.findById(savedUser.id);
+            const userInDb = await User.findById(user.id);
             assert(userInDb.blogs.map((b) => b.toString()).includes(response.body.id));
         });
     });
 
     describe("deletion of a blog", () => {
-        test("succeeds with status code 204 if id is valid", async () => {
-            const blogsAtStart = await helper.blogsInDB();
-            const blogToDelete = blogsAtStart[0];
+        const createBlog = async () => {
+            const response = await api
+                .post("/api/blogs")
+                .set("Authorization", `Bearer ${token}`)
+                .send({ title: "To delete", url: "https://example.com/del" })
+                .expect(201);
+            return response.body;
+        };
 
-            await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+        test("succeeds with status code 204 if the creator deletes it", async () => {
+            const blog = await createBlog();
+            const blogsAtStart = await helper.blogsInDB();
+
+            await api
+                .delete(`/api/blogs/${blog.id}`)
+                .set("Authorization", `Bearer ${token}`)
+                .expect(204);
 
             const blogsAtEnd = await helper.blogsInDB();
             assert.strictEqual(blogsAtEnd.length, blogsAtStart.length - 1);
+        });
 
-            const titles = blogsAtEnd.map((b) => b.title);
-            assert(!titles.includes(blogToDelete.title));
+        test("fails with status code 401 without a token", async () => {
+            const blog = await createBlog();
+            await api.delete(`/api/blogs/${blog.id}`).expect(401);
+        });
+
+        test("fails with status code 403 if user is not the creator", async () => {
+            const blog = await createBlog();
+            const passwordHash = await bcrypt.hash("other", 10);
+            await new User({ username: "otheruser", passwordHash }).save();
+            const login = await api
+                .post("/api/login")
+                .send({ username: "otheruser", password: "other" })
+                .expect(200);
+
+            await api
+                .delete(`/api/blogs/${blog.id}`)
+                .set("Authorization", `Bearer ${login.body.token}`)
+                .expect(403);
         });
     });
 
