@@ -14,6 +14,7 @@ const getUser = async (request, respose, next) => {
         const user = await User.findById(decodedToken.id);
         request.user = user;
     }
+    next();
 };
 
 const requestLogger = (request, response, next) => {
