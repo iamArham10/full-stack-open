@@ -25,6 +25,7 @@ connectToDB();
 app.use(express.static("dist"));
 app.use(express.json());
 app.use(middleware.requestLogger);
+app.use(middleware.getUser);
 app.use("/api/blogs", blogRouter);
 app.use("/api/users", userRouter);
 app.use("/api/login", loginRouter);

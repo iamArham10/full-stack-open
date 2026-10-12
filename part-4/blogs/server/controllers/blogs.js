@@ -14,7 +14,11 @@ blogRouter.post("/", async (request, response, next) => {
     try {
         const { title, author, url, like, likes } = request.body || {};
 
-        const user = await User.findOne({});
+        const user = request.user ? request.user : null;
+
+        if (!user) {
+            return response.status(400).end({ error: "Not Authenticated" });
+        }
 
         const blog = new Blog({
             title,
