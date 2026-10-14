@@ -1,0 +1,26 @@
+{
+    "name": "server",
+    "version": "1.0.0",
+    "description": "",
+    "main": "index.js",
+    "scripts": {
+        "test": "NODE_ENV=test node --test --test-concurrency=1",
+        "start": "NODE_ENV=production node index.js",
+        "dev": "NODE_ENV=development node -- watch index.js"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "type": "commonjs",
+    "dependencies": {
+        "bcrypt": "^6.0.0",
+        "cross-env": "^10.1.0",
+        "dotenv": "^18.0.5",
+        "express": "^5.2.1",
+        "jsonwebtoken": "^9.0.3",
+        "mongoose": "^9.10.4"
+    },
+    "devDependencies": {
+        "supertest": "^7.3.1"
+    }
+}
