@@ -1,12 +1,13 @@
 export default function ShowMessage({ message, type = "notError" }) {
     if (message === "") {
-        return;
+        return null;
     }
+
+    const color = type === "error" ? "red" : "blue";
+
     return (
         <div>
-            <p style={type === "error" ? { color: "red" } : { color: "blue" }}>
-                {message}
-            </p>
+            <p style={{ color }}>{message}</p>
         </div>
     );
 }
