@@ -68,11 +68,11 @@ const App = () => {
             blogs.map((b) =>
                 b.id === updatedBlog.id
                     ? {
-                          ...updatedBlog,
-                          user: updatedBlog.user?.username
-                              ? updatedBlog.user
-                              : b.user,
-                      }
+                        ...updatedBlog,
+                        user: updatedBlog.user?.username
+                            ? updatedBlog.user
+                            : b.user,
+                    }
                     : b,
             ),
         );
