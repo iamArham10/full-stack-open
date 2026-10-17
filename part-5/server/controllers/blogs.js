@@ -12,7 +12,7 @@ blogRouter.get("/", async (request, response) => {
 
 blogRouter.post("/", userExtractor, async (request, response, next) => {
     try {
-        const { title, author, url, like, likes } = request.body || {};
+        const { title, author, url, likes } = request.body || {};
 
         const user = request.user;
 
@@ -20,7 +20,7 @@ blogRouter.post("/", userExtractor, async (request, response, next) => {
             title,
             author,
             url,
-            like: like ?? likes ?? 0,
+            likes: likes ?? 0,
             user: user._id,
         });
 
@@ -29,7 +29,11 @@ blogRouter.post("/", userExtractor, async (request, response, next) => {
         user.blogs = user.blogs.concat(savedBlog._id);
         await user.save();
 
-        response.status(201).json(savedBlog);
+        const populatedBlog = await savedBlog.populate("user", {
+            username: 1,
+            name: 1,
+        });
+        response.status(201).json(populatedBlog);
     } catch (error) {
         next(error);
     }
@@ -76,8 +80,7 @@ blogRouter.delete("/:id", userExtractor, async (request, response, next) => {
 
 blogRouter.put("/:id", async (request, response, next) => {
     try {
-        const { title, author, url, like, likes } = request.body;
-        const newLikes = like ?? likes;
+        const { title, author, url, likes } = request.body;
 
         const blog = await Blog.findById(request.params.id);
         if (!blog) {
@@ -87,10 +90,14 @@ blogRouter.put("/:id", async (request, response, next) => {
         blog.title = title ? title : blog.title;
         blog.author = author ? author : blog.author;
         blog.url = url ? url : blog.url;
-        blog.like = newLikes !== undefined ? newLikes : blog.like;
+        blog.likes = likes !== undefined ? likes : blog.likes;
 
         const savedBlog = await blog.save();
-        response.json(savedBlog);
+        const populatedBlog = await savedBlog.populate("user", {
+            username: 1,
+            name: 1,
+        });
+        response.json(populatedBlog);
     } catch (error) {
         next(error);
     }

@@ -72,7 +72,7 @@ describe("when there are initially some blogs are saved", () => {
                 title: "George R.R Martin Memoir",
                 author: "George R.R Martin",
                 url: "https://reactpatterns.com/",
-                like: 7,
+                likes: 7,
             };
 
             const initialLength = helper.initialBlogs.length;
@@ -107,7 +107,7 @@ describe("when there are initially some blogs are saved", () => {
                 .expect("Content-Type", /application\/json/);
 
             const createdBlog = response.body;
-            assert.strictEqual(createdBlog.like, 0);
+            assert.strictEqual(createdBlog.likes, 0);
         });
 
         test("fails with status code 400 if title or url are missing", async () => {
@@ -153,7 +153,7 @@ describe("when there are initially some blogs are saved", () => {
                     title: "Blog with creator",
                     author: "Test Author",
                     url: "https://example.com/test",
-                    like: 4,
+                    likes: 4,
                 })
                 .expect(201);
 
@@ -214,17 +214,17 @@ describe("when there are initially some blogs are saved", () => {
         test("succeeds with status code 200 when updating likes", async () => {
             const blogs = await helper.blogsInDB();
             const blogToUpdate = blogs[0];
-            const currentLikes = blogToUpdate.like;
+            const currentLikes = blogToUpdate.likes;
 
             const response = await api
                 .put(`/api/blogs/${blogToUpdate.id}`)
-                .send({ like: currentLikes + 1 })
+                .send({ likes: currentLikes + 1 })
                 .expect(200);
 
-            assert.strictEqual(response.body.like, currentLikes + 1);
+            assert.strictEqual(response.body.likes, currentLikes + 1);
 
             const updatedBlog = await api.get(`/api/blogs/${blogToUpdate.id}`);
-            assert.strictEqual(updatedBlog.body.like, currentLikes + 1);
+            assert.strictEqual(updatedBlog.body.likes, currentLikes + 1);
         });
     });
 

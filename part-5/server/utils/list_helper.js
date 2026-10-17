@@ -60,7 +60,7 @@ function mostLikes(blogs) {
 
     return {
         author: maxAuthor,
-        like: maxLikes,
+        likes: maxLikes,
     };
 }
 module.exports = { dummy, totalLikes, favoriteBlog, mostBlogs, mostLikes };

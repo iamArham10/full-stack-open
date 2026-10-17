@@ -7,7 +7,7 @@ const formStyle = {
     gap: "0.5rem",
 };
 
-export default function AddBlog({ onAdd }) {
+export default function BlogForm({ onAdd }) {
     const [title, setTitle] = useState("");
     const [author, setAuthor] = useState("");
     const [url, setUrl] = useState("");
