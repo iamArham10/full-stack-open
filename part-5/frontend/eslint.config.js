@@ -47,4 +47,10 @@ export default [
             "no-unused-vars": ["error", { varsIgnorePattern: "^[A-Z_]" }],
         },
     },
+    {
+        files: ["**/*.test.{js,jsx}"],
+        languageOptions: {
+            globals: { ...globals.vitest },
+        },
+    },
 ];
