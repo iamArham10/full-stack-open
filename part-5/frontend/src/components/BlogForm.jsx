@@ -26,6 +26,7 @@ export default function BlogForm({ onAdd }) {
                         type="text"
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
+                        placeholder="title"
                     />
                 </label>
                 <label>
@@ -34,6 +35,7 @@ export default function BlogForm({ onAdd }) {
                         type="text"
                         value={author}
                         onChange={(e) => setAuthor(e.target.value)}
+                        placeholder="author"
                     />
                 </label>
                 <label>
@@ -42,6 +44,7 @@ export default function BlogForm({ onAdd }) {
                         type="text"
                         value={url}
                         onChange={(e) => setUrl(e.target.value)}
+                        placeholder="url"
                     />
                 </label>
                 <button type="submit">add</button>
