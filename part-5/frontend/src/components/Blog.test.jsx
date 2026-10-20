@@ -1,5 +1,6 @@
-import { queryByText, render, screen } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import Blog from "./Blog";
+import userEvent from "@testing-library/user-event";
 
 test("test blog component renders title and author but not url and likes by default", () => {
     const blog = {
@@ -23,3 +24,28 @@ test("test blog component renders title and author but not url and likes by defa
     expect(detail).toBeNull();
 });
 
+test("test blog component shows details when user presses view", async () => {
+    const blog = {
+        title: "React patterns",
+        author: "Michael Chan",
+        url: "https://reactpatterns.com/",
+        likes: 7,
+        user: {
+            username: "mchan",
+            name: "Michael Chan",
+        },
+    };
+
+    const user = userEvent.setup();
+
+    const { container } = render(<Blog blog={blog} />);
+    const viewButton = container.querySelector(".view-button");
+    await user.click(viewButton);
+
+    const detail = container.querySelector(".blogDetail");
+
+    expect(detail).not.toBeNull();
+    expect(detail).toHaveTextContent("https://reactpatterns.com/");
+    expect(detail).toHaveTextContent(`likes ${blog.likes}`);
+    expect(detail).toHaveTextContent(`${blog.user.name}`);
+});
