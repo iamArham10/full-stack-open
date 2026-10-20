@@ -49,3 +49,30 @@ test("test blog component shows details when user presses view", async () => {
     expect(detail).toHaveTextContent(`likes ${blog.likes}`);
     expect(detail).toHaveTextContent(`${blog.user.name}`);
 });
+
+test("check if like is clicked twice, appropriate event handler is also called twice", async () => {
+    const blog = {
+        title: "React patterns",
+        author: "Michael Chan",
+        url: "https://reactpatterns.com/",
+        likes: 7,
+        user: {
+            username: "mchan",
+            name: "Michael Chan",
+        },
+    };
+
+    const user = userEvent.setup();
+
+    const onLike = vi.fn();
+    render(<Blog blog={blog} onLike={onLike} />);
+
+    const button = screen.getByText("view");
+    await user.click(button);
+
+    const likeButton = screen.getByText("like");
+    await user.click(likeButton);
+    await user.click(likeButton);
+
+    expect(onLike.mock.calls).toHaveLength(2);
+});
