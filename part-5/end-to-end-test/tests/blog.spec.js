@@ -113,4 +113,88 @@ describe("blog App", () => {
             });
         });
     });
+
+    describe("two users logged in, blog created for them", () => {
+        beforeEach(async ({ page, request }) => {
+            await request.post("http://localhost:3000/api/users", {
+                data: {
+                    name: "otherUser",
+                    username: "otherUser",
+                    password: "1234",
+                },
+            });
+
+            await page.getByRole("button", { name: "login" }).click();
+            await page.getByLabel("username").fill("otherUser");
+            await page.getByLabel("password").fill("1234");
+
+            await page.getByRole("button", { name: "login" }).click();
+
+            // create a new blog
+            await page.getByRole("button", { name: "create new blog" }).click();
+
+            await page.getByLabel("title").fill("other user blog");
+            await page.getByLabel("author").fill("otherUser");
+            await page.getByLabel("url").fill("www.fakeurl.com");
+            await page.getByRole("button", { name: "add" }).click();
+
+            // log out
+            await page.getByRole("button", { name: "logout" }).click();
+
+            // other user log in
+
+            await page.getByRole("button", { name: "login" }).click();
+
+            await page.getByLabel("username").fill("arham");
+            await page.getByLabel("password").fill("1234");
+
+            await page.getByRole("button", { name: "login" }).click();
+
+            // new glo
+
+            await page.getByRole("button", { name: "create new blog" }).click();
+
+            await page.getByLabel("title").fill("arham blog");
+            await page.getByLabel("author").fill("arham");
+            await page.getByLabel("url").fill("www.fakeurl.com");
+            await page.getByRole("button", { name: "add" }).click();
+        });
+
+        test("test user who added the blog can delete a blog", async ({
+            page,
+        }) => {
+            const blogElement = page
+                .locator(".blog")
+                .filter({ hasText: "arham blog" });
+
+            await blogElement.getByRole("button", { name: "view" }).click();
+
+            page.once("dialog", async (dialog) => {
+                await dialog.accept();
+            });
+
+            await blogElement
+                .locator(".blogDetail")
+                .getByRole("button", { name: "remove" })
+                .click();
+
+            await expect(blogElement).not.toBeVisible();
+        });
+
+        test("whether the user whose blog its not cannot see the delete button", async ({
+            page,
+        }) => {
+            const blogElement = page
+                .locator(".blog")
+                .filter({ hasText: "other user blog" });
+
+            await blogElement.getByRole("button", { name: "view" }).click();
+
+            await expect(
+                blogElement
+                    .locator(".blogDetail")
+                    .getByRole("button", { name: "remove" }),
+            ).not.toBeVisible();
+        });
+    });
 });
