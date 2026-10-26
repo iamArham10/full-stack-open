@@ -30,6 +30,7 @@ const Blog = ({ blog, user, onLike, onDelete }) => {
                     {visible ? "hide" : "view"}
                 </button>
             </div>
+
             {visible && (
                 <div className="blogDetail">
                     <div>{blog.url}</div>

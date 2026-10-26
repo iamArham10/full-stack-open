@@ -1,7 +1,7 @@
 import { useState } from "react";
-import Blog from "./Blog";
+import { Link } from "react-router-dom";
 
-export default function Blogs({ blogs, user, onLike, onDelete }) {
+export default function Blogs({ blogs }) {
     const [sortByLikes, setSortByLikes] = useState(false);
 
     const shownBlogs = sortByLikes
@@ -13,15 +13,13 @@ export default function Blogs({ blogs, user, onLike, onDelete }) {
             <button onClick={() => setSortByLikes(!sortByLikes)}>
                 {sortByLikes ? "original order" : "sort by likes"}
             </button>
-            {shownBlogs.map((blog) => (
-                <Blog
-                    key={blog.id}
-                    blog={blog}
-                    user={user}
-                    onLike={onLike}
-                    onDelete={onDelete}
-                />
-            ))}
+            <ul>
+                {shownBlogs.map((blog) => (
+                    <li key={blog.id}>
+                        <Link to={`/blogs/${blog.id}`}>{blog.title}</Link>
+                    </li>
+                ))}
+            </ul>
         </>
     );
 }
