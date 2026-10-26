@@ -53,11 +53,11 @@ const App = () => {
             current.map((blog) =>
                 blog.id === updatedBlog.id
                     ? {
-                        ...updatedBlog,
-                        user: updatedBlog.user?.username
-                            ? updatedBlog.user
-                            : blog.user,
-                    }
+                          ...updatedBlog,
+                          user: updatedBlog.user?.username
+                              ? updatedBlog.user
+                              : blog.user,
+                      }
                     : blog,
             ),
         );
@@ -90,6 +90,7 @@ const App = () => {
             });
             setBlogs((current) => current.concat(createdBlog));
             blogFormRef.current?.toggleVisibility();
+            navigate("/");
         } catch {
             showMessage("Can't create a blog now", "error");
         }
@@ -131,6 +132,11 @@ const App = () => {
                 <Link style={navLinkStyle} to="/">
                     home
                 </Link>
+                {user && (
+                    <Link style={navLinkStyle} to="/create-blog">
+                        create a new blog
+                    </Link>
+                )}
                 {!user && (
                     <Link style={navLinkStyle} to="/login">
                         login
@@ -149,21 +155,10 @@ const App = () => {
             <ShowMessage message={message} type={messageType} />
 
             <Routes>
+                <Route path="/" element={<Blogs blogs={blogs} />} />
                 <Route
-                    path="/"
-                    element={
-                        <>
-                            {user && (
-                                <Togglable
-                                    ref={blogFormRef}
-                                    buttonLabel="create new blog"
-                                >
-                                    <BlogForm onAdd={handleBlogAdd} />
-                                </Togglable>
-                            )}
-                            <Blogs blogs={blogs} />
-                        </>
-                    }
+                    path="/create-blog"
+                    element={<BlogForm onAdd={handleBlogAdd} />}
                 />
                 <Route
                     path="/login"
