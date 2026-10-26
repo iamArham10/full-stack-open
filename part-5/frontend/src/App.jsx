@@ -5,6 +5,7 @@ import Togglable from "./components/Togglable";
 import ShowMessage from "./components/ShowMessage";
 import LoginForm from "./components/LoginForm";
 import Blogs from "./components/Blogs";
+import { Link, Route, Routes, useNavigate } from "react-router-dom";
 
 const App = () => {
     const [blogs, setBlogs] = useState([]);
@@ -12,6 +13,7 @@ const App = () => {
     const [message, setMessage] = useState("");
     const [messageState, setMessageState] = useState("");
     const blogFormRef = useRef();
+    const navigate = useNavigate();
 
     useEffect(() => {
         blogService.getAll().then((blogs) => setBlogs(blogs));
@@ -40,6 +42,7 @@ const App = () => {
         setUser(null);
         blogService.setToken(null);
         blogFormRef.current.toggleVisibility();
+        navigate("/");
     };
 
     const handleBlogAdd = async ({ title, author, url }) => {
@@ -68,11 +71,11 @@ const App = () => {
             blogs.map((b) =>
                 b.id === updatedBlog.id
                     ? {
-                        ...updatedBlog,
-                        user: updatedBlog.user?.username
-                            ? updatedBlog.user
-                            : b.user,
-                    }
+                          ...updatedBlog,
+                          user: updatedBlog.user?.username
+                              ? updatedBlog.user
+                              : b.user,
+                      }
                     : b,
             ),
         );
@@ -91,6 +94,7 @@ const App = () => {
         window.localStorage.setItem("blogUserLogin", JSON.stringify(user));
         blogService.setToken(user.token);
         setUser(user);
+        navigate("/");
     }
 
     const blogForm = () => (
@@ -101,38 +105,46 @@ const App = () => {
         </>
     );
 
-    const loginForm = () => (
-        <>
-            <Togglable buttonLabel="login">
-                <LoginForm onLogin={handleLogin} showMessage={showMessage} />
-            </Togglable>
-        </>
-    );
+    const padding = {
+        padding: 5,
+    };
 
     return (
-        <div>
-            {!user && loginForm()}
-            {user && (
-                <>
-                    <h3>
-                        {user.username} logged in{" "}
-                        <button onClick={handleLogout}>logout</button>
-                    </h3>
-                    <h2>add blog</h2>
-                    {blogForm()}
-                </>
-            )}
-            <h2>blogs</h2>
-            <ShowMessage message={message} type={messageState} />
-            {user && (
-                <Blogs
-                    blogs={blogs}
-                    user={user}
-                    onLike={handleBlogLike}
-                    onDelete={handleBlogDelete}
+        <>
+            <div>
+                <Link style={padding} to="/">
+                    home
+                </Link>
+                {!user && (
+                    <Link style={padding} to="/login">
+                        login
+                    </Link>
+                )}
+                {user && <button onClick={handleLogout}>logout</button>}
+            </div>
+            <Routes>
+                <Route
+                    path="/"
+                    element={
+                        <Blogs
+                            blogs={blogs}
+                            user={user}
+                            onLike={handleBlogLike}
+                            onDelete={handleBlogDelete}
+                        />
+                    }
                 />
-            )}
-        </div>
+                <Route
+                    path="/login"
+                    element={
+                        <LoginForm
+                            onLogin={handleLogin}
+                            showMessage={showMessage}
+                        />
+                    }
+                />
+            </Routes>
+        </>
     );
 };
 
