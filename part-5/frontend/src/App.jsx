@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { Link, useMatch, Route, Routes, useNavigate } from "react-router-dom";
 
 import Blog from "./components/Blog";
@@ -6,7 +6,6 @@ import BlogForm from "./components/BlogForm";
 import Blogs from "./components/Blogs";
 import LoginForm from "./components/LoginForm";
 import ShowMessage from "./components/ShowMessage";
-import Togglable from "./components/Togglable";
 import blogService from "./services/blogs";
 
 const USER_STORAGE_KEY = "blogUserLogin";
@@ -18,7 +17,6 @@ const App = () => {
     const [user, setUser] = useState(null);
     const [message, setMessage] = useState("");
     const [messageType, setMessageType] = useState("");
-    const blogFormRef = useRef();
     const navigate = useNavigate();
 
     const blogMatch = useMatch("/blogs/:id");
@@ -74,10 +72,9 @@ const App = () => {
     };
 
     const handleLogout = () => {
-        window.localStorage.clear();
+        window.localStorage.removeItem(USER_STORAGE_KEY);
         setUser(null);
         blogService.setToken(null);
-        blogFormRef.current?.toggleVisibility();
         navigate("/");
     };
 
@@ -89,7 +86,6 @@ const App = () => {
                 url,
             });
             setBlogs((current) => current.concat(createdBlog));
-            blogFormRef.current?.toggleVisibility();
             navigate("/");
         } catch {
             showMessage("Can't create a blog now", "error");
@@ -132,23 +128,20 @@ const App = () => {
                 <Link style={navLinkStyle} to="/">
                     home
                 </Link>
-                {user && (
-                    <Link style={navLinkStyle} to="/create-blog">
-                        create a new blog
-                    </Link>
-                )}
-                {!user && (
-                    <Link style={navLinkStyle} to="/login">
-                        login
-                    </Link>
-                )}
-                {user && (
+                {user ? (
                     <>
+                        <Link style={navLinkStyle} to="/create-blog">
+                            create a new blog
+                        </Link>
                         <span style={navLinkStyle}>
                             {user.username} logged in
                         </span>
                         <button onClick={handleLogout}>logout</button>
                     </>
+                ) : (
+                    <Link style={navLinkStyle} to="/login">
+                        login
+                    </Link>
                 )}
             </nav>
 
