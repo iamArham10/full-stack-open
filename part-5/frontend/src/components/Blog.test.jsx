@@ -2,6 +2,34 @@ import { render, screen } from "@testing-library/react";
 import Blog from "./Blog";
 import userEvent from "@testing-library/user-event";
 
+test("blog information and number of likes are displayed to user but not buttons", async () => {
+    const blog = {
+        title: "React patterns",
+        author: "Michael Chan",
+        url: "https://reactpatterns.com",
+        likes: 7,
+    };
+
+    const user = userEvent.setup();
+    const { container } = render(<Blog blog={blog} />);
+
+    // check whether blog information is visible
+    const blogSummary = container.querySelector(".blogSummary");
+    expect(blogSummary).toHaveTextContent("React patterns");
+    expect(blogSummary).toHaveTextContent("Michael Chan");
+
+    await user.click(blogSummary.querySelector(".view-button"));
+
+    const blogDetail = container.querySelector(".blogDetail");
+
+    expect(blogDetail).not.toBeNull();
+    expect(blogDetail).toHaveTextContent("https://reactpatterns.com");
+    expect(blogDetail).toHaveTextContent("likes: 7");
+
+    expect(blogDetail.querySelector(".like-button")).toBeNull();
+    expect(screen.queryByText("remove")).toBeNull();
+});
+
 test("test blog component renders title and author but not url and likes by default", () => {
     const blog = {
         title: "React patterns",
@@ -70,7 +98,7 @@ test("check if like is clicked twice, appropriate event handler is also called t
     const button = screen.getByText("view");
     await user.click(button);
 
-    const likeButton = screen.getByText("like");
+    const likeButton = screen.querySelector(".like-button");
     await user.click(likeButton);
     await user.click(likeButton);
 

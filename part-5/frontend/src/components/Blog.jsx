@@ -35,8 +35,15 @@ const Blog = ({ blog, user, onLike, onDelete }) => {
                 <div className="blogDetail">
                     <div>{blog.url}</div>
                     <div>
-                        likes {blog.likes}{" "}
-                        <button onClick={() => onLike(blog)}>like</button>
+                        likes: {blog.likes}{" "}
+                        {user && (
+                            <button
+                                className="like-button"
+                                onClick={() => onLike(blog)}
+                            >
+                                like
+                            </button>
+                        )}
                     </div>
                     <div>{blog.user?.name}</div>
                     {canDelete && (
