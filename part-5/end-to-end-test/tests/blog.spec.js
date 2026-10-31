@@ -20,7 +20,7 @@ describe("blog App", () => {
     });
 
     test("login form is displayed", async ({ page }) => {
-        await page.getByRole("button", { name: "login" }).click();
+        await page.getByRole("link", { name: "login" }).click();
 
         const usernameField = page.getByRole("textbox", {
             name: "username",
@@ -60,10 +60,10 @@ describe("blog App", () => {
                 url: "www.fakeurl.com",
             });
 
-            await expect(page.getByText("new blog arham")).toBeVisible();
+            await expect(page.getByText("new blog")).toBeVisible();
         });
 
-        describe("blogged can be liked", () => {
+        describe("blog can be liked", () => {
             beforeEach(async ({ page }) => {
                 await createBlog(page, {
                     title: "first blog",
@@ -79,9 +79,9 @@ describe("blog App", () => {
 
             test("blog can be liked", async ({ page }) => {
                 await likeBlog(page, "second blog");
-                await expect(
-                    getBlog(page, "second blog").locator(".blogDetail"),
-                ).toContainText("likes 1");
+                await expect(page.locator(".blogDetail")).toContainText(
+                    "likes: 1",
+                );
             });
         });
 
@@ -114,6 +114,7 @@ describe("blog App", () => {
                     url: "www.fakeurl.com",
                 });
                 await likeBlog(page, "fourth", 2);
+                await page.goto("http://localhost:3000");
             });
 
             test("blogs are sorted", async ({ page }) => {
@@ -121,7 +122,7 @@ describe("blog App", () => {
                     .getByRole("button", { name: "sort by likes" })
                     .click();
 
-                const blogs = page.locator(".blog");
+                const blogs = page.getByRole("list").getByRole("link");
 
                 await expect(blogs.nth(0)).toContainText("third");
                 await expect(blogs.nth(1)).toContainText("first");
@@ -159,7 +160,7 @@ describe("blog App", () => {
         test("test user who added the blog can delete a blog", async ({
             page,
         }) => {
-            const blogElement = getBlog(page, "arham blog");
+            const blogElement = await getBlog(page, "arham blog");
 
             await blogElement.getByRole("button", { name: "view" }).click();
 
@@ -178,7 +179,7 @@ describe("blog App", () => {
         test("whether the user whose blog its not cannot see the delete button", async ({
             page,
         }) => {
-            const blogElement = getBlog(page, "other user blog");
+            const blogElement = await getBlog(page, "other user blog");
 
             await blogElement.getByRole("button", { name: "view" }).click();
 
