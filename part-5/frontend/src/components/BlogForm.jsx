@@ -1,3 +1,4 @@
+import { Button, TextField } from "@mui/material";
 import { useState } from "react";
 
 const formStyle = {
@@ -20,34 +21,22 @@ export default function BlogForm({ onAdd }) {
     return (
         <div>
             <form onSubmit={handleAddBlog} style={formStyle}>
-                <label>
-                    Title:{" "}
-                    <input
-                        type="text"
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="title"
-                    />
-                </label>
-                <label>
-                    Author:{" "}
-                    <input
-                        type="text"
-                        value={author}
-                        onChange={(e) => setAuthor(e.target.value)}
-                        placeholder="author"
-                    />
-                </label>
-                <label>
-                    Url:{" "}
-                    <input
-                        type="text"
-                        value={url}
-                        onChange={(e) => setUrl(e.target.value)}
-                        placeholder="url"
-                    />
-                </label>
-                <button type="submit">add</button>
+                <TextField
+                    label="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                />
+                <TextField
+                    label="author"
+                    value={author}
+                    onChange={(e) => setAuthor(e.target.value)}
+                />
+                <TextField
+                    label="url"
+                    value={url}
+                    onChange={(e) => setUrl(e.target.value)}
+                />
+                <Button type="submit">add</Button>
             </form>
         </div>
     );

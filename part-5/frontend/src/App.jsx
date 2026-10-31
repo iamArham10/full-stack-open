@@ -7,10 +7,10 @@ import Blogs from "./components/Blogs";
 import LoginForm from "./components/LoginForm";
 import ShowMessage from "./components/ShowMessage";
 import blogService from "./services/blogs";
+import { AppBar, Button, Container, Toolbar } from "@mui/material";
 
 const USER_STORAGE_KEY = "blogUserLogin";
 const MESSAGE_TIMEOUT_MS = 3000;
-const navLinkStyle = { padding: 5 };
 
 const App = () => {
     const [blogs, setBlogs] = useState([]);
@@ -123,27 +123,38 @@ const App = () => {
     };
 
     return (
-        <>
-            <nav>
-                <Link style={navLinkStyle} to="/">
-                    home
-                </Link>
-                {user ? (
-                    <>
-                        <Link style={navLinkStyle} to="/create-blog">
-                            create a new blog
-                        </Link>
-                        <span style={navLinkStyle}>
-                            {user.username} logged in
-                        </span>
-                        <button onClick={handleLogout}>logout</button>
-                    </>
-                ) : (
-                    <Link style={navLinkStyle} to="/login">
-                        login
-                    </Link>
-                )}
-            </nav>
+        <Container>
+            <AppBar position="static">
+                <Toolbar>
+                    <h3 style={{ marginRight: "auto" }}>Blog App</h3>
+
+                    <Button color="inherit" component={Link} to="/">
+                        Home
+                    </Button>
+
+                    {user ? (
+                        <>
+                            <Button
+                                color="inherit"
+                                component={Link}
+                                to="/create-blog"
+                            >
+                                Create a new blog
+                            </Button>
+
+                            <Button color="inherit" onClick={handleLogout}>
+                                Logout
+                            </Button>
+                        </>
+                    ) : (
+                        <Button color="inherit" component={Link} to="/login">
+                            Login
+                        </Button>
+                    )}
+                </Toolbar>
+            </AppBar>
+
+            <br />
 
             <ShowMessage message={message} type={messageType} />
 
@@ -178,7 +189,7 @@ const App = () => {
                     }
                 />
             </Routes>
-        </>
+        </Container>
     );
 };
 

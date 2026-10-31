@@ -1,13 +1,15 @@
+import { Alert } from "@mui/material";
 export default function ShowMessage({ message, type = "notError" }) {
     if (message === "") {
         return null;
     }
 
-    const color = type === "error" ? "red" : "blue";
-
     return (
-        <div>
-            <p style={{ color }}>{message}</p>
-        </div>
+        <Alert
+            style={{ marginTop: 10, marginBottom: 10 }}
+            severity={type === "error" ? type : "success"}
+        >
+            {message}
+        </Alert>
     );
 }
