@@ -4,6 +4,7 @@ import {
     addAnecdotes,
     getAnecdotes,
     updateAnecdotes,
+    deleteAnecdote,
 } from "./service/anecdotes";
 
 const useNotificationStore = create((set) => ({
@@ -44,6 +45,18 @@ const useAnecdoteStore = create((set, get) => ({
         add: async (content) => {
             const newAnecdote = await addAnecdotes(content);
             set((state) => ({ anecdotes: [...state.anecdotes, newAnecdote] }));
+        },
+        remove: async (id) => {
+            const anecdote = get().anecdotes.find((a) => a.id === id);
+            if (anecdote) {
+                await deleteAnecdote(anecdote.id);
+                // remove anecdote from state
+                set((state) => ({
+                    anecdotes: state.anecdotes.filter(
+                        (a) => a.id !== anecdote.id,
+                    ),
+                }));
+            }
         },
         setFilter: (filter) => set({ filter: filter }),
     },

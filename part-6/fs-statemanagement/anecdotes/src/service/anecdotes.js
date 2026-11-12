@@ -41,4 +41,18 @@ async function updateAnecdotes(anecdote) {
     return await response.json();
 }
 
-export { getAnecdotes, addAnecdotes, updateAnecdotes };
+async function deleteAnecdote(id) {
+    const options = {
+        method: "DELETE",
+    };
+
+    const response = await fetch(`${baseURL}/${id}`, options);
+
+    if (!response.ok) {
+        throw new Error("Failed to delete anecdote");
+    }
+
+    return await response.json();
+}
+
+export { getAnecdotes, addAnecdotes, updateAnecdotes, deleteAnecdote };
