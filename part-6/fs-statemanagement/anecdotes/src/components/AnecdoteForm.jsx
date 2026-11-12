@@ -1,13 +1,16 @@
 import { useAnecdotesActions } from "../store";
+import { useNotificationActions } from "../store";
 
 export default function AnecdoteForm() {
     const { add } = useAnecdotesActions();
+    const { setNotification } = useNotificationActions();
 
     const handleAdd = (e) => {
         e.preventDefault();
         const content = e.target.anecdote.value.trim();
         if (content !== "") {
             add(content);
+            setNotification("New Anecodete Added");
         }
     };
 

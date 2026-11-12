@@ -6,6 +6,19 @@ import {
     updateAnecdotes,
 } from "./service/anecdotes";
 
+const useNotificationStore = create((set) => ({
+    notification: null,
+    actions: {
+        setNotification: (notification, time = 3000) =>
+            set(() => {
+                setTimeout(() => {
+                    set(() => ({ notification: null }));
+                }, time);
+                return { notification };
+            }),
+    },
+}));
+
 const useAnecdoteStore = create((set, get) => ({
     anecdotes: [],
     filter: "",
@@ -55,3 +68,9 @@ export const useAnecdotes = () =>
 
 export const useAnecdotesActions = () =>
     useAnecdoteStore((state) => state.actions);
+
+export const useNotification = () =>
+    useNotificationStore((state) => state.notification);
+
+export const useNotificationActions = () =>
+    useNotificationStore((state) => state.actions);
