@@ -48,4 +48,5 @@ describe("useAnecdoteActions", () => {
         const { result: anecdotes } = renderHook(() => useAnecdotes());
         expect(anecdotes.current.anecdotes).toEqual(mockAnecdotes);
     });
+
 });
