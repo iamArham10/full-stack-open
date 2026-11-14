@@ -20,7 +20,7 @@ const useNotificationStore = create((set) => ({
     },
 }));
 
-const useAnecdoteStore = create((set, get) => ({
+export const useAnecdoteStore = create((set, get) => ({
     anecdotes: [],
     filter: "",
     actions: {
