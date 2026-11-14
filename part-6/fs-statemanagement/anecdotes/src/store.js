@@ -20,7 +20,7 @@ const useNotificationStore = create((set) => ({
     },
 }));
 
-export const useAnecdoteStore = create((set, get) => ({
+const useAnecdoteStore = create((set, get) => ({
     anecdotes: [],
     filter: "",
     actions: {
@@ -62,7 +62,7 @@ export const useAnecdoteStore = create((set, get) => ({
     },
 }));
 
-export const useAnecdotes = () =>
+const useAnecdotes = () =>
     useAnecdoteStore(
         useShallow((state) => {
             const filter = state.filter.trim().toLowerCase();
@@ -79,11 +79,19 @@ export const useAnecdotes = () =>
         }),
     );
 
-export const useAnecdotesActions = () =>
-    useAnecdoteStore((state) => state.actions);
+const useAnecdotesActions = () => useAnecdoteStore((state) => state.actions);
 
-export const useNotification = () =>
+const useNotification = () =>
     useNotificationStore((state) => state.notification);
 
-export const useNotificationActions = () =>
+const useNotificationActions = () =>
     useNotificationStore((state) => state.actions);
+
+export {
+    useAnecdoteStore,
+    useAnecdotesActions,
+    useAnecdotes,
+    useNotification,
+    useNotificationStore,
+    useNotificationActions,
+};
