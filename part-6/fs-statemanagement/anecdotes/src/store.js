@@ -62,22 +62,27 @@ const useAnecdoteStore = create((set, get) => ({
     },
 }));
 
-const useAnecdotes = () =>
-    useAnecdoteStore(
-        useShallow((state) => {
-            const filter = state.filter.trim().toLowerCase();
-
-            return {
-                filter: state.filter,
-                anecdotes:
-                    filter !== ""
-                        ? state.anecdotes.filter((a) =>
-                              a.content.toLowerCase().includes(filter),
-                          )
-                        : state.anecdotes,
-            };
-        }),
+const useAnecdotes = () => {
+    const { anecdotes, filter } = useAnecdoteStore(
+        useShallow((state) => ({
+            anecdotes: state.anecdotes,
+            filter: state.filter,
+        })),
     );
+
+    const normalizedFilter = filter.trim().toLowerCase();
+    const filteredAnecdotes =
+        normalizedFilter !== ""
+            ? anecdotes.filter((a) =>
+                  a.content.toLowerCase().includes(normalizedFilter),
+              )
+            : anecdotes;
+
+    return {
+        filter,
+        anecdotes: filteredAnecdotes,
+    };
+};
 
 const useAnecdotesActions = () => useAnecdoteStore((state) => state.actions);
 
