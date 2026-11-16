@@ -1,37 +1,42 @@
-import AnecdoteForm from './components/AnecdoteForm'
-import Notification from './components/Notification'
+import AnecdoteForm from "./components/AnecdoteForm";
+import Notification from "./components/Notification";
+import { useAnecdotes } from "./useAnecdotes";
 
 const App = () => {
-  const handleVote = (anecdote) => {
-    console.log('vote')
-  }
+    const { anecdotes, isPending, addAnecdote, updateAnecdote } =
+        useAnecdotes();
 
-  const anecdotes = [
-    {
-      content: 'If it hurts, do it more often',
-      id: '47145',
-      votes: 0,
-    },
-  ]
+    if (isPending) {
+        return (
+            <div>anecdote service not availabe due to problems in server</div>
+        );
+    }
 
-  return (
-    <div>
-      <h3>Anecdote app</h3>
+    const handleVote = (anecdote) => {
+        updateAnecdote(anecdote);
+    };
 
-      <Notification />
-      <AnecdoteForm />
+    return (
+        <div>
+            <h3>Anecdote app</h3>
 
-      {anecdotes.map((anecdote) => (
-        <div key={anecdote.id}>
-          <div>{anecdote.content}</div>
-          <div>
-            has {anecdote.votes}
-            <button onClick={() => handleVote(anecdote)}>vote</button>
-          </div>
+            <Notification />
+            <AnecdoteForm />
+
+            {anecdotes.map((anecdote) => (
+                <div key={anecdote.id}>
+                    <div>{anecdote.content}</div>
+                    <div>
+                        has {anecdote.votes}
+                        <button onClick={() => handleVote(anecdote)}>
+                            vote
+                        </button>
+                    </div>
+                </div>
+            ))}
         </div>
-      ))}
-    </div>
-  )
-}
+    );
+};
 
-export default App
+export default App;
+
