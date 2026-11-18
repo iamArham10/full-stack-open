@@ -37,12 +37,13 @@ export const useAnecdotes = () => {
     return {
         anecdotes: result.data,
         isPending: result.isPending,
-        addAnecdote: (content) =>
-            addAnecdoteMutation.mutate({ content, votes: 0 }),
-        updateAnecdote: (anecdote) =>
-            updateAnecdoteMutation.mutate({
-                ...anecdote,
-                votes: anecdote.votes + 1,
-            }),
+        isError: result.isError,
+        addAnecdote: (content, options) =>
+            addAnecdoteMutation.mutate({ content, votes: 0 }, options),
+        updateAnecdote: (anecdote, options) =>
+            updateAnecdoteMutation.mutate(
+                { ...anecdote, votes: anecdote.votes + 1 },
+                options,
+            ),
     };
 };

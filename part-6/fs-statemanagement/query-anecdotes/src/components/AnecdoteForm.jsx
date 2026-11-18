@@ -4,17 +4,17 @@ import { useContext } from "react";
 
 const AnecdoteForm = () => {
     const { addAnecdote } = useAnecdotes();
-    const { setNotification } = useContext(NotificationContext);
+    const { notify } = useContext(NotificationContext);
 
     const onCreate = (event) => {
         event.preventDefault();
         const content = event.target.anecdote.value;
         event.target.reset();
-        addAnecdote(content);
-        setNotification(`anecdote \`${content}\` added`);
-        setTimeout(() => {
-            setNotification("");
-        }, 3000);
+
+        addAnecdote(content, {
+            onSuccess: () => notify(`anecdote \`${content}\` added`),
+            onError: (error) => notify(error.message),
+        });
     };
 
     return (
