@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import AnecdoteForm from "./components/AnecdoteForm";
 import Notification from "./components/Notification";
 import { useAnecdotes } from "./useAnecdotes";
@@ -6,18 +6,7 @@ import NotificationContext from "./context/NotificationContext";
 
 const App = () => {
     const { anecdotes, isPending, isError, updateAnecdote } = useAnecdotes();
-    const [notification, setNotification] = useState("");
-    const timeoutRef = useRef(null);
-
-    // Show a message for 3 seconds. Clears any previous timer so a new
-    // notification isn't wiped early by an older one's timeout.
-    const notify = (message) => {
-        clearTimeout(timeoutRef.current);
-        setNotification(message);
-        timeoutRef.current = setTimeout(() => {
-            setNotification("");
-        }, 3000);
-    };
+    const { notify } = useContext(NotificationContext);
 
     if (isPending) {
         return <div>loading data...</div>;
@@ -38,24 +27,22 @@ const App = () => {
 
     return (
         <div>
-            <NotificationContext value={{ notification, notify }}>
-                <h3>Anecdote app</h3>
+            <h3>Anecdote app</h3>
 
-                <Notification />
-                <AnecdoteForm />
+            <Notification />
+            <AnecdoteForm />
 
-                {anecdotes.map((anecdote) => (
-                    <div key={anecdote.id}>
-                        <div>{anecdote.content}</div>
-                        <div>
-                            has {anecdote.votes}
-                            <button onClick={() => handleVote(anecdote)}>
-                                vote
-                            </button>
-                        </div>
+            {anecdotes.map((anecdote) => (
+                <div key={anecdote.id}>
+                    <div>{anecdote.content}</div>
+                    <div>
+                        has {anecdote.votes}
+                        <button onClick={() => handleVote(anecdote)}>
+                            vote
+                        </button>
                     </div>
-                ))}
-            </NotificationContext>
+                </div>
+            ))}
         </div>
     );
 };
