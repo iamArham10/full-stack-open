@@ -1,50 +1,53 @@
-import { useState } from "react"
-import { useNavigate } from "react-router"
+import { useState } from "react";
+import { useNavigate } from "react-router";
+import { useField } from "../hooks";
 
 const CreateNew = ({ addAnecdote }) => {
-  const [content, setContent] = useState("")
-  const [author, setAuthor] = useState("")
-  const [info, setInfo] = useState("")
-  const navigate = useNavigate()
+    const navigate = useNavigate();
+    const { reset: resetContent, ...content } = useField("text");
+    const { reset: resetAuthor, ...author } = useField("text");
+    const { reset: resetInfo, ...info } = useField("text");
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    addAnecdote({ content, author, info, votes: 0 })
-    navigate("/")
-  }
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        addAnecdote({
+            content: content.value,
+            author: author.value,
+            info: info.value,
+            votes: 0,
+        });
+        navigate("/");
+    };
 
-  return (
-    <div>
-      <h2>create a new anecdote</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          content
-          <input
-            name="content"
-            value={content}
-            onChange={(e) => setContent(e.target.value)}
-          />
-        </div>
-        <div>
-          author
-          <input
-            name="author"
-            value={author}
-            onChange={(e) => setAuthor(e.target.value)}
-          />
-        </div>
-        <div>
-          url for more info
-          <input
-            name="info"
-            value={info}
-            onChange={(e) => setInfo(e.target.value)}
-          />
-        </div>
-        <button>create</button>
-      </form>
-    </div>
-  )
-}
+    const resetAllFields = () => {
+        resetContent();
+        resetAuthor();
+        resetInfo();
+    };
 
-export default CreateNew
+    return (
+        <div>
+            <h2>create a new anecdote</h2>
+            <form onSubmit={handleSubmit}>
+                <div>
+                    content
+                    <input {...content} />
+                </div>
+                <div>
+                    author
+                    <input {...author} />
+                </div>
+                <div>
+                    url for more info
+                    <input {...info} />
+                </div>
+                <button>create</button>
+                <button type="button" onClick={resetAllFields}>
+                    reset
+                </button>
+            </form>
+        </div>
+    );
+};
+
+export default CreateNew;
